@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Belajar Variabel Python</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;500;600&display=swap');
+
+        :root {
+            --bg: #0d1117;
+            --surface: #161b22;
+            --card: #1c2333;
+            --border: #30363d;
+            --cyan: #58d6a2;
+            --orange: #f0883e;
+            --blue: #79c0ff;
+            --pink: #f778ba;
+            --yellow: #e3b341;
+            --purple: #bc8cff;
+            --red: #ff7b72;
+            --text: #e6edf3;
+            --muted: #8b949e;
+            --green: #3fb950;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== TOP BAR ===== */
+        .topbar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 20px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+            z-index: 10;
+        }
+        .topbar-logo {
+            font-size: 22px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .topbar-logo span { font-size: 26px; }
+        .step-pills {
+            display: flex;
+            gap: 6px;
+            margin-left: 16px;
+        }
+        .step-pill {
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            background: rgba(255,255,255,0.04);
+            border: 1.5px solid var(--border);
+            color: var(--muted);
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        .step-pill:hover { border-color: var(--purple); color: var(--text); }
+        .step-pill.active {
+            background: rgba(188,140,255,0.15);
+            border-color: var(--purple);
+            color: var(--purple);
+        }
+        .step-pill.done {
+            background: rgba(63,185,80,0.12);
+            border-color: var(--green);
+            color: var(--green);
+        }
+        .xp-bar-wrap {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .xp-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--yellow);
+        }
+        .xp-bar {
+            width: 120px;
+            height: 8px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .xp-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--yellow), var(--orange));
+            border-radius: 10px;
+            transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            width: 0%;
+        }
+        .xp-text { font-size: 13px; font-weight: 800; color: var(--yellow); min-width: 45px; }
+
+        /* ===== MAIN LAYOUT ===== */
+        .main {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* ===== LEFT: CODE PANEL ===== */
+        .code-panel {
+            width: 45%;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border);
+            background: var(--surface);
+        }
+
+        /* Mascot speech */
+        .mascot-bar {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 14px 18px;
+            background: rgba(188,140,255,0.06);
+            border-bottom: 1px solid var(--border);
+            min-height: 60px;
+        }
+        .mascot-avatar {
+            font-size: 36px;
+            flex-shrink: 0;
+            animation: mascotBounce 3s infinite;
+        }
+        @keyframes mascotBounce {
+            0%,100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-4px) rotate(-3deg); }
+            75% { transform: translateY(-2px) rotate(3deg); }
+        }
+        .mascot-bubble {
+            background: var(--card);
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.5;
+            position: relative;
+            flex: 1;
+        }
+        .mascot-bubble::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 12px;
+            border: 6px solid transparent;
+            border-right-color: var(--border);
+        }
+        .mascot-bubble::after {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 13px;
+            border: 5px solid transparent;
+            border-right-color: var(--card);
+        }
+        .mascot-bubble code {
+            background: rgba(188,140,255,0.15);
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            color: var(--purple);
+        }
+        .mascot-bubble .highlight {
+            color: var(--cyan);
+            font-weight: 800;
+        }
+
+        /* Editor */
+        .editor-wrap {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .editor-toolbar {
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            gap: 8px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(0,0,0,0.2);
+        }
+        .ed-dot { width: 11px; height: 11px; border-radius: 50%; }
+        .ed-dot.r { background: #ff5f57; }
+        .ed-dot.y { background: #febc2e; }
+        .ed-dot.g { background: #28c840; }
+        .ed-filename {
+            font-size: 12px;
+            color: var(--muted);
+            margin-left: 8px;
+            font-family: 'Fira Code', monospace;
+        }
+        .ed-run {
+            margin-left: auto;
+            padding: 4px 14px;
+            background: var(--green);
+            color: #0d1117;
+            border: none;
+            border-radius: 6px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .ed-run:hover { transform: scale(1.05); filter: brightness(1.1); }
+        .ed-run:active { transform: scale(0.97); }
+
+        .editor-area {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        .editor-lines {
+            position: absolute;
+            left: 0; top: 0;
+            width: 44px;
+            height: 100%;
+            background: rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            padding-top: 16px;
+            user-select: none;
+        }
+        .line-num {
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            color: var(--muted);
+            opacity: 0.4;
+            text-align: right;
+            padding-right: 10px;
+            line-height: 24px;
+            height: 24px;
+        }
+        #codeInput {
+            position: absolute;
+            left: 44px; top: 0;
+            width: calc(100% - 44px);
+            height: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-family: 'Fira Code', monospace;
+            font-size: 15px;
+            line-height: 24px;
+            padding: 16px;
+            resize: none;
+            outline: none;
+            tab-size: 4;
+        }
+        #codeInput::placeholder { color: #3d4450; }
+
+        /* Output panel */
+        .output-panel {
+            border-top: 1px solid var(--border);
+            background: rgba(0,0,0,0.25);
+            padding: 10px 16px;
+            max-height: 110px;
+            overflow-y: auto;
+        }
+        .output-header {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        #outputText {
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            color: var(--cyan);
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+        /* ===== RIGHT: VISUAL PANEL ===== */
+        .visual-panel {
+            width: 55%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+        .visual-header {
+            padding: 10px 20px;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: var(--surface);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .visual-header .dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--green);
+            animation: livePulse 2s infinite;
+        }
+        @keyframes livePulse {
+            0%,100% { opacity: 1; box-shadow: 0 0 0 0 rgba(63,185,80,0.4); }
+            50% { opacity: 0.7; box-shadow: 0 0 0 6px rgba(63,185,80,0); }
+        }
+
+        .visual-canvas {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            gap: 24px;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* Empty state */
+        .empty-state {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: var(--muted);
+            pointer-events: none;
+            transition: opacity 0.4s;
+        }
+        .empty-state .es-icon {
+            font-size: 64px;
+            opacity: 0.3;
+            margin-bottom: 12px;
+            display: block;
+        }
+        .empty-state .es-text {
+            font-size: 15px;
+            font-weight: 600;
+            opacity: 0.5;
+        }
+        .empty-state.hidden { opacity: 0; }
+
+        /* ===== VARIABLE BOX (the star of the show) ===== */
+        .var-box-container {
+            animation: boxAppear 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+        @keyframes boxAppear {
+            from { opacity: 0; transform: scale(0.3) translateY(30px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .var-box-container.removing {
+            animation: boxRemove 0.4s ease-in forwards;
+        }
+        @keyframes boxRemove {
+            to { opacity: 0; transform: scale(0.5) translateY(-20px); }
+        }
+
+        .var-box {
+            width: 170px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 2.5px solid;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+        }
+        .var-box:hover {
+            transform: translateY(-6px) scale(1.04);
+        }
+        .var-box.flash {
+            animation: boxFlash 0.6s;
+        }
+        @keyframes boxFlash {
+            0% { filter: brightness(1); box-shadow: 0 0 0 0 currentColor; }
+            30% { filter: brightness(1.3); box-shadow: 0 0 30px 4px; transform: scale(1.08); }
+            100% { filter: brightness(1); box-shadow: 0 0 0 0 }
+        }
+
+        .var-box-label {
+            padding: 8px 14px;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+        .var-box-body {
+            background: rgba(0,0,0,0.3);
+            padding: 16px 12px;
+            text-align: center;
+            min-height: 68px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            position: relative;
+        }
+        .var-box-value {
+            font-size: 26px;
+            font-weight: 900;
+            font-family: 'Fira Code', monospace;
+            word-break: break-all;
+            transition: all 0.3s;
+        }
+        .var-box-type {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Flying value animation */
+        .flying-value {
+            position: fixed;
+            font-family: 'Fira Code', monospace;
+            font-size: 20px;
+            font-weight: 800;
+            pointer-events: none;
+            z-index: 9999;
+            transition: all 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+            opacity: 1;
+        }
+        .flying-value.land {
+            opacity: 0;
+            transform: scale(0.3);
+        }
+
+        /* Type colors */
+        .vtype-int { border-color: var(--cyan); color: var(--cyan); }
+        .vtype-int .var-box-label { background: var(--cyan); color: var(--bg); }
+        .vtype-int .var-box-value { color: var(--cyan); }
+        .vtype-int .var-box-type { background: rgba(88,214,162,0.15); color: var(--cyan); }
+
+        .vtype-str { border-color: var(--orange); color: var(--orange); }
+        .vtype-str .var-box-label { background: var(--orange); color: var(--bg); }
+        .vtype-str .var-box-value { color: var(--orange); font-size: 20px; }
+        .vtype-str .var-box-type { background: rgba(240,136,62,0.15); color: var(--orange); }
+
+        .vtype-float { border-color: var(--blue); color: var(--blue); }
+        .vtype-float .var-box-label { background: var(--blue); color: var(--bg); }
+        .vtype-float .var-box-value { color: var(--blue); }
+        .vtype-float .var-box-type { background: rgba(121,192,255,0.15); color: var(--blue); }
+
+        .vtype-bool { border-color: var(--pink); color: var(--pink); }
+        .vtype-bool .var-box-label { background: var(--pink); color: var(--bg); }
+        .vtype-bool .var-box-value { color: var(--pink); }
+        .vtype-bool .var-box-type { background: rgba(247,120,186,0.15); color: var(--pink); }
+
+        .vtype-list { border-color: var(--purple); color: var(--purple); }
+        .vtype-list .var-box-label { background: var(--purple); color: var(--bg); }
+        .vtype-list .var-box-value { color: var(--purple); font-size: 16px; }
+        .vtype-list .var-box-type { background: rgba(188,140,255,0.15); color: var(--purple); }
+
+        .vtype-none { border-color: var(--muted); color: var(--muted); }
+        .vtype-none .var-box-label { background: var(--muted); color: var(--bg); }
+        .vtype-none .var-box-value { color: var(--muted); }
+        .vtype-none .var-box-type { background: rgba(139,148,158,0.15); color: var(--muted); }
+
+        /* ===== GHOST BOX (just typed a name, no = yet) ===== */
+        .var-box.vbox-ghost {
+            border: 2.5px dashed var(--purple) !important;
+            animation: ghostPulse 2s infinite ease-in-out;
+        }
+        @keyframes ghostPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.85; }
+        }
+        .var-box.vbox-ghost .var-box-label {
+            background: var(--purple) !important;
+            color: var(--bg) !important;
+        }
+        .ghost-body-content {
+            text-align: center;
+        }
+        .ghost-arrow {
+            font-size: 24px;
+            display: block;
+            animation: ghostArrow 1s infinite;
+            margin-bottom: 4px;
+        }
+        @keyframes ghostArrow {
+            0%, 100% { transform: translateX(0); opacity: 0.6; }
+            50% { transform: translateX(6px); opacity: 1; }
+        }
+        .ghost-hint-text {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--purple);
+            font-family: 'Nunito', sans-serif;
+            line-height: 1.4;
+        }
+
+        /* ===== WAITING BOX (typed name = , waiting for value) ===== */
+        .var-box.vbox-waiting {
+            border: 2.5px solid var(--yellow) !important;
+            animation: waitingGlow 1.5s infinite ease-in-out;
+        }
+        @keyframes waitingGlow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(227,179,65,0); }
+            50% { box-shadow: 0 0 25px 3px rgba(227,179,65,0.25); }
+        }
+        .var-box.vbox-waiting .var-box-label {
+            background: var(--yellow) !important;
+            color: var(--bg) !important;
+        }
+        .waiting-cursor {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--yellow);
+            animation: cursorBlink 0.7s infinite;
+        }
+        @keyframes cursorBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.15; }
+        }
+        .waiting-hint-text {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--yellow);
+            font-family: 'Nunito', sans-serif;
+        }
+
+        /* ===== ERROR BOX (unclosed string, invalid value) ===== */
+        .var-box.vbox-error {
+            border: 2.5px solid var(--red) !important;
+            animation: errorShake 0.5s ease-in-out, errorPulse 2s infinite 0.5s;
+        }
+        @keyframes errorPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255,123,114,0); }
+            50% { box-shadow: 0 0 20px 3px rgba(255,123,114,0.25); }
+        }
+        @keyframes errorShake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-6px); }
+            40% { transform: translateX(6px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
+        }
+        .var-box.vbox-error .var-box-label {
+            background: var(--red) !important;
+            color: var(--bg) !important;
+        }
+        .error-body-content {
+            text-align: center;
+        }
+        .error-partial-value {
+            font-family: 'Fira Code', monospace;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+        .error-partial-value .missing-quote {
+            color: var(--red);
+            animation: cursorBlink 0.7s infinite;
+            font-weight: 900;
+        }
+        .error-hint-text {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--red);
+            font-family: 'Nunito', sans-serif;
+        }
+
+        /* ===== LIVE HINT BANNER ===== */
+        .live-hint {
+            position: absolute;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--card);
+            border: 2px solid var(--purple);
+            border-radius: 14px;
+            padding: 12px 22px;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text);
+            z-index: 6;
+            text-align: center;
+            max-width: 90%;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform: translateX(-50%) translateY(10px);
+            white-space: nowrap;
+        }
+        .live-hint.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .live-hint .hint-emoji { margin-right: 6px; }
+        .live-hint code {
+            background: rgba(188,140,255,0.2);
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+        }
+
+        /* ===== CONFETTI ===== */
+        .confetti-piece {
+            position: fixed;
+            pointer-events: none;
+            z-index: 99999;
+            animation: confettiFall linear forwards;
+        }
+        @keyframes confettiFall {
+            0% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 110vh; opacity: 0; transform: rotate(720deg) scale(0.5); }
+        }
+
+        /* ===== PARTICLES BG ===== */
+        .bg-particles {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .bg-particle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.07;
+            animation: bgFloat 25s infinite ease-in-out;
+        }
+        @keyframes bgFloat {
+            0%,100% { transform: translate(0, 0); }
+            33% { transform: translate(30px, -50px); }
+            66% { transform: translate(-40px, 20px); }
+        }
+
+        /* ===== GUIDED STEPS MODAL ===== */
+        .guide-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 5000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s;
+            backdrop-filter: blur(4px);
+        }
+        .guide-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .guide-card {
+            background: var(--card);
+            border: 2px solid var(--purple);
+            border-radius: 20px;
+            padding: 40px 36px;
+            max-width: 480px;
+            width: 90%;
+            text-align: center;
+            animation: guideIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        @keyframes guideIn {
+            from { transform: scale(0.7) translateY(40px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        .guide-card .gc-emoji {
+            font-size: 56px;
+            display: block;
+            margin-bottom: 12px;
+        }
+        .guide-card .gc-title {
+            font-size: 24px;
+            font-weight: 900;
+            margin-bottom: 8px;
+        }
+        .guide-card .gc-desc {
+            font-size: 15px;
+            color: var(--muted);
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+        .guide-card .gc-desc strong { color: var(--text); }
+        .guide-btn {
+            padding: 12px 32px;
+            border: none;
+            border-radius: 50px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            background: linear-gradient(135deg, var(--purple), #8b5cf6);
+            color: white;
+            box-shadow: 0 4px 20px rgba(188,140,255,0.3);
+            transition: all 0.3s;
+        }
+        .guide-btn:hover { transform: translateY(-2px) scale(1.04); box-shadow: 0 8px 30px rgba(188,140,255,0.4); }
+
+        /* ===== XP POPUP ===== */
+        .xp-popup {
+            position: fixed;
+            font-size: 18px;
+            font-weight: 900;
+            color: var(--yellow);
+            pointer-events: none;
+            z-index: 10000;
+            animation: xpFloat 1.2s ease-out forwards;
+            text-shadow: 0 2px 8px rgba(227,179,65,0.5);
+        }
+        @keyframes xpFloat {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-60px) scale(1.3); }
+        }
+
+        /* ===== SOUND TOGGLE ===== */
+        .sound-toggle {
+            background: none;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            padding: 4px 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text);
+        }
+        .sound-toggle:hover { border-color: var(--purple); }
+
+        /* ===== LESSON CHALLENGE CARD ===== */
+        .challenge-card {
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--card);
+            border: 2px solid var(--yellow);
+            border-radius: 14px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            box-shadow: 0 4px 20px rgba(227,179,65,0.15);
+            white-space: nowrap;
+            z-index: 5;
+            animation: challengeSlideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            max-width: 90%;
+        }
+        @keyframes challengeSlideUp {
+            from { transform: translateX(-50%) translateY(20px); opacity: 0; }
+            to { transform: translateX(-50%) translateY(0); opacity: 1; }
+        }
+        .challenge-icon { font-size: 22px; }
+        .challenge-text { color: var(--yellow); }
+        .challenge-check {
+            color: var(--green);
+            font-size: 20px;
+            display: none;
+        }
+        .challenge-card.completed {
+            border-color: var(--green);
+        }
+        .challenge-card.completed .challenge-text {
+            color: var(--green);
+            text-decoration: line-through;
+        }
+        .challenge-card.completed .challenge-check { display: inline; }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .main { flex-direction: column; }
+            .code-panel { width: 100%; height: 50%; }
+            .visual-panel { width: 100%; height: 50%; }
+            .step-pills { display: none; }
+            .xp-bar { width: 80px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- BG Particles -->
+<div class="bg-particles" id="bgParticles"></div>
+
+<!-- Top Bar -->
+<div class="topbar">
+    <div class="topbar-logo"><span>🐍</span> PyVar</div>
+    <div class="step-pills" id="stepPills">
+        <div class="step-pill active" data-step="0" onclick="goStep(0)">1. Kenalan</div>
+        <div class="step-pill" data-step="1" onclick="goStep(1)">2. Bikin</div>
+        <div class="step-pill" data-step="2" onclick="goStep(2)">3. Tipe Data</div>
+        <div class="step-pill" data-step="3" onclick="goStep(3)">4. Ganti Isi</div>
+        <div class="step-pill" data-step="4" onclick="goStep(4)">5. Bebas!</div>
+    </div>
+    <div class="xp-bar-wrap">
+        <button class="sound-toggle" id="soundBtn" onclick="toggleSound()" title="Sound on/off">🔊</button>
+        <span class="xp-label">XP</span>
+        <div class="xp-bar"><div class="xp-fill" id="xpFill"></div></div>
+        <span class="xp-text" id="xpText">0</span>
+    </div>
+</div>
+
+<!-- Main Layout -->
+<div class="main">
+    <!-- LEFT: Code Editor -->
+    <div class="code-panel">
+        <!-- Mascot Speech -->
+        <div class="mascot-bar">
+            <div class="mascot-avatar" id="mascotFace">🐍</div>
+            <div class="mascot-bubble" id="mascotBubble">
+                Hai! Aku <span class="highlight">Pytho</span>! Klik tombol mulai untuk belajar variabel bersamaku!
+            </div>
+        </div>
+
+        <!-- Code Editor -->
+        <div class="editor-wrap">
+            <div class="editor-toolbar">
+                <span class="ed-dot r"></span>
+                <span class="ed-dot y"></span>
+                <span class="ed-dot g"></span>
+                <span class="ed-filename">belajar.py</span>
+                <button class="ed-run" onclick="runCode()" title="Jalankan kode (Ctrl+Enter)">▶ Run</button>
+            </div>
+            <div class="editor-area">
+                <div class="editor-lines" id="lineNums"></div>
+                <textarea id="codeInput" placeholder="Ketik kode Python di sini..." spellcheck="false"></textarea>
+            </div>
+            <div class="output-panel">
+                <div class="output-header">Output</div>
+                <div id="outputText"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT: Visual Panel -->
+    <div class="visual-panel">
+        <div class="visual-header">
+            <span class="dot"></span> Visualisasi Variabel — LIVE
+        </div>
+        <div class="visual-canvas" id="visualCanvas">
+            <div class="empty-state" id="emptyState">
+                <span class="es-icon">📦</span>
+                <div class="es-text">Variabel akan muncul di sini saat kamu menulis kode!</div>
+            </div>
+            <div class="live-hint" id="liveHint"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Welcome Guide Overlay -->
+<div class="guide-overlay show" id="guideOverlay">
+    <div class="guide-card" id="guideCard">
+        <span class="gc-emoji">🐍</span>
+        <div class="gc-title" id="gcTitle">Hai! Aku Pytho!</div>
+        <div class="gc-desc" id="gcDesc">
+            Aku akan mengajakmu belajar <strong>variabel</strong> dengan cara yang seru!<br><br>
+            Kamu cukup <strong>ketik kode di kiri</strong>, dan lihat <strong>kotak variabel muncul di kanan</strong> secara langsung!
+        </div>
+        <button class="guide-btn" id="guideBtn" onclick="startLesson()">Ayo Mulai! 🚀</button>
+    </div>
+</div>
+
+<!-- Audio Context for beeps -->
+<script>
+    // ===== AUDIO =====
+    let audioCtx = null;
+    let soundOn = true;
+
+    function initAudio() {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    function playBeep(freq, dur, type = 'sine') {
+        if (!soundOn) return;
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.type = type;
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+        osc.start();
+        osc.stop(audioCtx.currentTime + dur);
+    }
+
+    function playSuccess() { playBeep(523, 0.1); setTimeout(() => playBeep(659, 0.1), 100); setTimeout(() => playBeep(784, 0.15), 200); }
+    function playPop() { playBeep(880, 0.08, 'sine'); }
+    function playUpdate() { playBeep(660, 0.1); setTimeout(() => playBeep(880, 0.12), 80); }
+    function playError() { playBeep(200, 0.2, 'sawtooth'); }
+
+    function toggleSound() {
+        soundOn = !soundOn;
+        document.getElementById('soundBtn').textContent = soundOn ? '🔊' : '🔇';
+    }
+
+    // ===== BG PARTICLES =====
+    const bgP = document.getElementById('bgParticles');
+    const pColors = ['#58d6a2','#f0883e','#79c0ff','#f778ba','#e3b341','#bc8cff'];
+    for (let i = 0; i < 15; i++) {
+        const d = document.createElement('div');
+        d.className = 'bg-particle';
+        d.style.width = d.style.height = (Math.random() * 200 + 60) + 'px';
+        d.style.left = Math.random() * 100 + '%';
+        d.style.top = Math.random() * 100 + '%';
+        d.style.background = pColors[i % pColors.length];
+        d.style.animationDelay = (Math.random() * 10) + 's';
+        d.style.animationDuration = (Math.random() * 20 + 15) + 's';
+        bgP.appendChild(d);
+    }
+
+    // ===== LINE NUMBERS =====
+    const codeInput = document.getElementById('codeInput');
+    const lineNums = document.getElementById('lineNums');
+
+    function updateLineNumbers() {
+        const lines = codeInput.value.split('\n').length;
+        const maxLines = Math.max(lines, 15);
+        lineNums.innerHTML = '';
+        for (let i = 1; i <= maxLines; i++) {
+            const d = document.createElement('div');
+            d.className = 'line-num';
+            d.textContent = i;
+            lineNums.appendChild(d);
+        }
+    }
+    codeInput.addEventListener('input', () => { updateLineNumbers(); autoVisualize(); });
+    codeInput.addEventListener('scroll', () => { lineNums.scrollTop = codeInput.scrollTop; });
+    updateLineNumbers();
+
+    // ===== XP SYSTEM =====
+    let xp = 0;
+    const maxXp = 500;
+
+    function addXP(amount, x, y) {
+        xp = Math.min(xp + amount, maxXp);
+        document.getElementById('xpFill').style.width = (xp / maxXp * 100) + '%';
+        document.getElementById('xpText').textContent = xp;
+
+        // Float popup
+        const popup = document.createElement('div');
+        popup.className = 'xp-popup';
+        popup.textContent = '+' + amount + ' XP';
+        popup.style.left = (x || (window.innerWidth / 2)) + 'px';
+        popup.style.top = (y || 100) + 'px';
+        document.body.appendChild(popup);
+        setTimeout(() => popup.remove(), 1200);
+        playPop();
+    }
+
+    // ===== LESSON STEPS =====
+    let currentStep = -1;
+    const lessons = [
+        {
+            mascot: 'Variabel itu kayak <span class="highlight">kotak penyimpanan</span>! Coba ketik: <code>nama = "Adi"</code> lalu klik <span class="highlight">▶ Run</span>',
+            challenge: 'Ketik: nama = "Adi"',
+            check: (vars) => 'nama' in vars && typeof vars['nama'] === 'string',
+            prefill: '',
+            xp: 50,
+        },
+        {
+            mascot: 'Keren! Sekarang coba simpan angka! Ketik: <code>umur = 12</code> — lihat warnanya beda karena tipenya beda!',
+            challenge: 'Tambahkan: umur = 12',
+            check: (vars) => 'umur' in vars && typeof vars['umur'] === 'number' && Number.isInteger(vars['umur']),
+            prefill: 'nama = "Adi"\n',
+            xp: 50,
+        },
+        {
+            mascot: 'Ada 4 tipe utama! Coba semua sekaligus — lihat setiap kotak punya <span class="highlight">warna berbeda</span> sesuai tipenya!',
+            challenge: 'Buat variabel bertipe float & bool',
+            check: (vars) => {
+                let hasFloat = false, hasBool = false;
+                for (const k in vars) {
+                    if (typeof vars[k] === 'number' && !Number.isInteger(vars[k])) hasFloat = true;
+                    if (typeof vars[k] === 'boolean') hasBool = true;
+                }
+                return hasFloat && hasBool;
+            },
+            prefill: 'nama = "Adi"\numur = 12\n',
+            xp: 100,
+        },
+        {
+            mascot: 'Isi kotak bisa <span class="highlight">diganti</span>! Coba tulis <code>umur = 12</code> lalu di bawahnya <code>umur = 15</code> — lihat nilainya berubah!',
+            challenge: 'Ubah nilai variabel yang sudah ada',
+            check: (vars, code) => {
+                const lines = code.split('\n').filter(l => l.trim());
+                const assigned = {};
+                for (const l of lines) {
+                    const m = l.match(/^([a-zA-Z_]\w*)\s*=/);
+                    if (m) {
+                        if (assigned[m[1]]) return true;
+                        assigned[m[1]] = true;
+                    }
+                }
+                return false;
+            },
+            prefill: 'nama = "Adi"\numur = 12\n',
+            xp: 100,
+        },
+        {
+            mascot: 'Sekarang kamu <span class="highlight">bebas bereksperimen</span>! Buat variabel apa saja dan lihat kotak-kotaknya muncul!',
+            challenge: null,
+            check: () => false,
+            prefill: '',
+            xp: 0,
+        },
+    ];
+
+    let stepCompleted = [false, false, false, false, false];
+
+    function startLesson() {
+        initAudio();
+        document.getElementById('guideOverlay').classList.remove('show');
+        playSuccess();
+        goStep(0);
+    }
+
+    function goStep(n) {
+        currentStep = n;
+        const lesson = lessons[n];
+
+        // Update pills
+        document.querySelectorAll('.step-pill').forEach((p, i) => {
+            p.classList.remove('active');
+            if (i === n) p.classList.add('active');
+            if (stepCompleted[i]) p.classList.add('done');
+        });
+
+        // Update mascot
+        document.getElementById('mascotBubble').innerHTML = lesson.mascot;
+
+        // Prefill code only if editor is empty or doesn't contain the prefill yet
+        if (lesson.prefill && n < 4 && !codeInput.value.includes(lesson.prefill.trim())) {
+            codeInput.value = lesson.prefill;
+            updateLineNumbers();
+            autoVisualize();
+        }
+
+        // Update challenge card
+        updateChallenge(lesson.challenge);
+
+        // Focus editor
+        codeInput.focus();
+    }
+
+    function updateChallenge(text) {
+        // Remove old challenge
+        const old = document.querySelector('.challenge-card');
+        if (old) old.remove();
+
+        if (!text) return;
+
+        const card = document.createElement('div');
+        card.className = 'challenge-card';
+        card.id = 'challengeCard';
+        card.innerHTML = `
+            <span class="challenge-icon">🎯</span>
+            <span class="challenge-text">${text}</span>
+            <span class="challenge-check">✅</span>
+        `;
+        document.getElementById('visualCanvas').appendChild(card);
+    }
+
+    function checkStepComplete(vars, code) {
+        if (currentStep < 0 || currentStep >= lessons.length) return;
+        const lesson = lessons[currentStep];
+        if (stepCompleted[currentStep]) return;
+
+        if (lesson.check(vars, code)) {
+            stepCompleted[currentStep] = true;
+            playSuccess();
+
+            // Mark challenge as done
+            const card = document.getElementById('challengeCard');
+            if (card) card.classList.add('completed');
+
+            // XP
+            const rect = document.getElementById('xpText').getBoundingClientRect();
+            addXP(lesson.xp, rect.left, rect.top);
+
+            // Mark pill as done
+            const pill = document.querySelector(`.step-pill[data-step="${currentStep}"]`);
+            if (pill) pill.classList.add('done');
+
+            // Confetti!
+            spawnConfetti(25);
+
+            // Auto advance after delay
+            if (currentStep < lessons.length - 1) {
+                setTimeout(() => goStep(currentStep + 1), 2000);
+            }
+        }
+    }
+
+    // ===== PYTHON INTERPRETER =====
+    let prevVars = {};
+
+    function interpretPython(code) {
+        const lines = code.split('\n');
+        const vars = {};
+        let output = [];
+        let error = false;
+
+        for (let i = 0; i < lines.length; i++) {
+            let line = lines[i].trim();
+            if (!line || line.startsWith('#')) continue;
+
+            // print()
+            const printMatch = line.match(/^print\s*\((.+)\)\s*$/);
+            if (printMatch) {
+                try {
+                    const args = splitArgs(printMatch[1]);
+                    const results = args.map(a => {
+                        const v = evalExpr(a.trim(), vars);
+                        if (typeof v === 'boolean') return v ? 'True' : 'False';
+                        if (v === null) return 'None';
+                        return String(v);
+                    });
+                    output.push(results.join(' '));
+                } catch (e) {
+                    output.push(`Error baris ${i+1}: ${e.message}`);
+                    error = true;
+                }
+                continue;
+            }
+
+            // input()
+            const inputMatch = line.match(/^([a-zA-Z_]\w*)\s*=\s*input\s*\(.*\)\s*$/);
+            if (inputMatch) {
+                vars[inputMatch[1]] = "(input)";
+                continue;
+            }
+
+            // type()
+            const typeMatch = line.match(/^print\s*\(\s*type\s*\(\s*(.+?)\s*\)\s*\)\s*$/);
+            if (typeMatch) {
+                try {
+                    const v = evalExpr(typeMatch[1].trim(), vars);
+                    if (typeof v === 'number') output.push(Number.isInteger(v) ? "<class 'int'>" : "<class 'float'>");
+                    else if (typeof v === 'string') output.push("<class 'str'>");
+                    else if (typeof v === 'boolean') output.push("<class 'bool'>");
+                    else output.push("<class 'NoneType'>");
+                } catch (e) {
+                    output.push(`Error baris ${i+1}: ${e.message}`);
+                    error = true;
+                }
+                continue;
+            }
+
+            // Assignment
+            const assignMatch = line.match(/^([a-zA-Z_]\w*)\s*=\s*(.+)$/);
+            if (assignMatch) {
+                const vName = assignMatch[1];
+                const kws = ['if','else','elif','for','while','def','class','import','from','return','print','and','or','not','in','is','try','except','finally','with','as','break','continue','pass','raise','yield','lambda','global','nonlocal','del','assert'];
+                if (kws.includes(vName)) {
+                    output.push(`SyntaxError: '${vName}' kata kunci Python!`);
+                    error = true;
+                    continue;
+                }
+                try {
+                    vars[vName] = evalExpr(assignMatch[2].trim(), vars);
+                } catch (e) {
+                    output.push(`Error baris ${i+1}: ${e.message}`);
+                    error = true;
+                }
+                continue;
+            }
+
+            if (line.length > 0) {
+                output.push(`SyntaxError baris ${i+1}`);
+                error = true;
+            }
+        }
+        return { vars, output: output.join('\n'), error };
+    }
+
+    function splitArgs(str) {
+        const args = []; let depth = 0; let cur = ''; let inStr = false; let sc = '';
+        for (const ch of str) {
+            if (inStr) { cur += ch; if (ch === sc) inStr = false; }
+            else if (ch === '"' || ch === "'") { inStr = true; sc = ch; cur += ch; }
+            else if (ch === '(') { depth++; cur += ch; }
+            else if (ch === ')') { depth--; cur += ch; }
+            else if (ch === ',' && depth === 0) { args.push(cur); cur = ''; }
+            else { cur += ch; }
+        }
+        if (cur.trim()) args.push(cur);
+        return args;
+    }
+
+    function evalExpr(expr, vars) {
+        expr = expr.trim();
+        if (expr === 'True') return true;
+        if (expr === 'False') return false;
+        if (expr === 'None') return null;
+        // Complete string: "Adi" or 'Adi'
+        if ((expr.startsWith('"') && expr.endsWith('"') && expr.length > 1) ||
+            (expr.startsWith("'") && expr.endsWith("'") && expr.length > 1)) return expr.slice(1, -1);
+        // Incomplete string while typing: "Adi or 'Adi (no closing quote)
+        if (expr.startsWith('"') || expr.startsWith("'")) return expr.slice(1);
+        if (expr.startsWith('[') && expr.endsWith(']')) {
+            const inner = expr.slice(1, -1).trim();
+            if (!inner) return [];
+            return splitArgs(inner).map(a => evalExpr(a.trim(), vars));
+        }
+        if (!isNaN(expr) && expr !== '') return Number(expr);
+        if (/^[a-zA-Z_]\w*$/.test(expr)) {
+            if (expr in vars) return vars[expr];
+            throw new Error(`variabel '${expr}' belum ada!`);
+        }
+        // f-string
+        const fm = expr.match(/^f(["'])(.+)\1$/);
+        if (fm) { return fm[2].replace(/\{(\w+)\}/g, (_, k) => (k in vars ? vars[k] : `{${k}}`)); }
+        // Binary ops
+        for (const op of ['+', '-', '*', '/', '%']) {
+            const idx = findOp(expr, op);
+            if (idx > 0) {
+                const l = evalExpr(expr.substring(0, idx), vars);
+                const r = evalExpr(expr.substring(idx + 1), vars);
+                if (op === '+') { return (typeof l === 'string' || typeof r === 'string') ? String(l) + String(r) : l + r; }
+                if (op === '-') return l - r;
+                if (op === '*') { if (typeof l === 'string') return l.repeat(r); if (typeof r === 'string') return r.repeat(l); return l * r; }
+                if (op === '/') return l / r;
+                if (op === '%') return l % r;
+            }
+        }
+        return expr;
+    }
+
+    function findOp(expr, op) {
+        let inStr = false, sc = '', d = 0;
+        const rtl = op === '+' || op === '-';
+        if (rtl) {
+            for (let i = expr.length - 1; i >= 1; i--) {
+                const c = expr[i];
+                if (inStr) { if (c === sc) inStr = false; continue; }
+                if (c === '"' || c === "'") { inStr = true; sc = c; continue; }
+                if (c === ')' || c === ']') d++;
+                if (c === '(' || c === '[') d--;
+                if (c === op && d === 0) return i;
+            }
+        } else {
+            for (let i = 1; i < expr.length; i++) {
+                const c = expr[i];
+                if (inStr) { if (c === sc) inStr = false; continue; }
+                if (c === '"' || c === "'") { inStr = true; sc = c; continue; }
+                if (c === '(' || c === '[') d++;
+                if (c === ')' || c === ']') d--;
+                if (c === op && d === 0) return i;
+            }
+        }
+        return -1;
+    }
+
+    // ===== LIVE VISUALIZATION =====
+    let visualVars = {};
+    let visualItems = {};
+    let autoRunTimer = null;
+    let boxTimeouts = {}; // Track pending animation timeouts per box
+
+    const PY_KEYWORDS = ['if','else','elif','for','while','def','class','import','from','return','print','and','or','not','in','is','try','except','finally','with','as','break','continue','pass','raise','yield','lambda','global','nonlocal','del','assert','True','False','None'];
+
+    // Parse lines into visual items: ghost, waiting, or complete
+    function parseLinesForVisual(code) {
+        const lines = code.split('\n');
+        const items = {};
+        const vars = {};
+
+        for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed || trimmed.startsWith('#')) continue;
+
+            // 1. Complete assignment: name = value
+            const fullMatch = trimmed.match(/^([a-zA-Z_]\w*)\s*=\s*(.+)$/);
+            if (fullMatch) {
+                const name = fullMatch[1];
+                if (PY_KEYWORDS.includes(name)) continue;
+                try {
+                    const val = evalExpr(fullMatch[2].trim(), vars);
+                    vars[name] = val;
+                    items[name] = { name, state: 'complete', value: val };
+                } catch (e) {
+                    items[name] = { name, state: 'waiting', hint: 'Nilai tidak valid' };
+                }
+                continue;
+            }
+
+            // 2. Partial assignment: name = (no value)
+            const partialMatch = trimmed.match(/^([a-zA-Z_]\w*)\s*=\s*$/);
+            if (partialMatch) {
+                const name = partialMatch[1];
+                if (PY_KEYWORDS.includes(name)) continue;
+                if (!(name in items)) {
+                    items[name] = { name, state: 'waiting' };
+                }
+                continue;
+            }
+
+            // 3. Just a name (potential variable)
+            const nameMatch = trimmed.match(/^([a-zA-Z_]\w*)$/);
+            if (nameMatch) {
+                const name = nameMatch[1];
+                if (PY_KEYWORDS.includes(name)) continue;
+                // Don't overwrite a complete or waiting state
+                if (!(name in items)) {
+                    items[name] = { name, state: 'ghost' };
+                }
+                continue;
+            }
+
+            // 4. print() — skip for visual, handled by runCode
+            // 5. Other — skip
+        }
+
+        return { items, vars };
+    }
+
+    function autoVisualize() {
+        clearTimeout(autoRunTimer);
+        autoRunTimer = setTimeout(() => {
+            const code = codeInput.value;
+            const parsed = parseLinesForVisual(code);
+            renderVisualItems(parsed.items);
+            updateLiveHint(parsed.items);
+        }, 50);
+    }
+
+    function renderVisualItems(newItems) {
+        const canvas = document.getElementById('visualCanvas');
+        const emptyState = document.getElementById('emptyState');
+        const newKeys = Object.keys(newItems);
+        const oldKeys = Object.keys(visualItems);
+
+        // Hide empty state if anything exists
+        if (newKeys.length > 0) {
+            emptyState.classList.add('hidden');
+        } else {
+            emptyState.classList.remove('hidden');
+        }
+
+        // Remove items that no longer exist
+        for (const key of oldKeys) {
+            if (!(key in newItems)) {
+                const el = document.getElementById('vbox-' + key);
+                if (el) {
+                    el.classList.add('removing');
+                    setTimeout(() => el.remove(), 400);
+                }
+            }
+        }
+
+        // Add or update items
+        for (const key of newKeys) {
+            const item = newItems[key];
+            const existing = document.getElementById('vbox-' + key);
+
+            if (existing) {
+                updateBoxState(existing, item);
+            } else {
+                createBox(canvas, item);
+            }
+        }
+
+        visualItems = { ...newItems };
+    }
+
+    function createBox(canvas, item) {
+        const container = document.createElement('div');
+        container.className = 'var-box-container';
+        container.id = 'vbox-' + item.name;
+        container.innerHTML = getBoxHTML(item);
+
+        // Insert before challenge card or live-hint
+        const challenge = document.getElementById('challengeCard');
+        const liveHint = document.getElementById('liveHint');
+        if (challenge) {
+            canvas.insertBefore(container, challenge);
+        } else if (liveHint) {
+            canvas.insertBefore(container, liveHint);
+        } else {
+            canvas.appendChild(container);
+        }
+
+        playPop();
+
+        // Confetti only for complete boxes
+        if (item.state === 'complete') {
+            setTimeout(() => {
+                const rect = container.getBoundingClientRect();
+                spawnConfettiAt(rect.left + rect.width / 2, rect.top + rect.height / 2, 6);
+            }, 300);
+        }
+    }
+
+    function updateBoxState(container, item) {
+        // Cancel any pending animation for this box
+        if (boxTimeouts[item.name]) {
+            clearTimeout(boxTimeouts[item.name]);
+            delete boxTimeouts[item.name];
+        }
+
+        const oldState = container.dataset.state;
+        const newState = item.state;
+
+        if (oldState === newState && newState === 'complete') {
+            // Check if value changed
+            const valueEl = container.querySelector('.var-box-value');
+            const typeInfo = getTypeInfo(item.value);
+            const displayVal = formatValue(item.value);
+            const box = container.querySelector('.var-box');
+
+            if (valueEl && (valueEl.textContent !== displayVal || !box.className.includes(typeInfo.cls))) {
+                animateFlyingValue(displayVal, typeInfo.color, container);
+                boxTimeouts[item.name] = setTimeout(() => {
+                    container.innerHTML = getBoxHTML(item);
+                    container.dataset.state = newState;
+                    const newBox = container.querySelector('.var-box');
+                    if (newBox) { newBox.classList.add('flash'); setTimeout(() => newBox.classList.remove('flash'), 600); }
+                    delete boxTimeouts[item.name];
+                }, 400);
+                playUpdate();
+                return;
+            }
+            return; // No change
+        }
+
+        // State changed — immediately re-render (no delay!)
+        container.innerHTML = getBoxHTML(item);
+        container.dataset.state = newState;
+        container.style.animation = 'none';
+        container.offsetHeight; // Force reflow
+        container.style.animation = '';
+
+        if (oldState !== newState) {
+            const box = container.querySelector('.var-box');
+            if (box) { box.classList.add('flash'); setTimeout(() => box.classList.remove('flash'), 600); }
+
+            // Celebrate completion
+            if (newState === 'complete') {
+                playSuccess();
+                setTimeout(() => {
+                    const rect = container.getBoundingClientRect();
+                    spawnConfettiAt(rect.left + rect.width / 2, rect.top + rect.height / 2, 8);
+                }, 200);
+            } else if (newState === 'waiting' && oldState === 'ghost') {
+                playPop();
+            }
+        }
+    }
+
+    function getBoxHTML(item) {
+        if (item.state === 'ghost') {
+            return `
+                <div class="var-box vbox-ghost" data-state="ghost">
+                    <div class="var-box-label">${item.name}</div>
+                    <div class="var-box-body">
+                        <div class="ghost-body-content">
+                            <span class="ghost-arrow">→</span>
+                            <span class="ghost-hint-text">tambahkan <strong>=</strong></span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        if (item.state === 'waiting') {
+            return `
+                <div class="var-box vbox-waiting" data-state="waiting">
+                    <div class="var-box-label">${item.name}</div>
+                    <div class="var-box-body">
+                        <span class="waiting-cursor">?</span>
+                        <span class="waiting-hint-text">ketik nilainya!</span>
+                    </div>
+                </div>
+            `;
+        }
+        // Complete
+        const typeInfo = getTypeInfo(item.value);
+        const displayVal = formatValue(item.value);
+        return `
+            <div class="var-box vtype-${typeInfo.cls}" data-state="complete">
+                <div class="var-box-label">${item.name}</div>
+                <div class="var-box-body">
+                    <div class="var-box-value">${displayVal}</div>
+                    <span class="var-box-type">${typeInfo.label}</span>
+                </div>
+            </div>
+        `;
+    }
+
+    function updateLiveHint(items) {
+        const hintEl = document.getElementById('liveHint');
+        const keys = Object.keys(items);
+        if (keys.length === 0) { hintEl.classList.remove('show'); return; }
+
+        // Find the most interesting state to hint about
+        let ghostNames = [], waitingNames = [], completeCount = 0;
+        for (const k of keys) {
+            if (items[k].state === 'ghost') ghostNames.push(k);
+            else if (items[k].state === 'waiting') waitingNames.push(k);
+            else completeCount++;
+        }
+
+        if (ghostNames.length > 0) {
+            const n = ghostNames[ghostNames.length - 1];
+            hintEl.innerHTML = `<span class="hint-emoji">💡</span> Ketik <code>${n} = "nilai"</code> untuk menyimpan sesuatu!`;
+            hintEl.style.borderColor = 'var(--purple)';
+            hintEl.classList.add('show');
+        } else if (waitingNames.length > 0) {
+            const n = waitingNames[waitingNames.length - 1];
+            hintEl.innerHTML = `<span class="hint-emoji">✏️</span> Ketik nilainya! Contoh: <code>${n} = "Halo"</code> atau <code>${n} = 42</code>`;
+            hintEl.style.borderColor = 'var(--yellow)';
+            hintEl.classList.add('show');
+        } else if (completeCount > 0) {
+            hintEl.innerHTML = `<span class="hint-emoji">🎉</span> Keren! ${completeCount} variabel tersimpan! Klik <strong>▶ Run</strong> atau buat lagi!`;
+            hintEl.style.borderColor = 'var(--green)';
+            hintEl.classList.add('show');
+        } else {
+            hintEl.classList.remove('show');
+        }
+    }
+
+    function runCode() {
+        const code = codeInput.value;
+        if (!code.trim()) return;
+
+        const result = interpretPython(code);
+        const outEl = document.getElementById('outputText');
+
+        if (result.error) {
+            outEl.style.color = 'var(--red)';
+            playError();
+        } else {
+            outEl.style.color = 'var(--cyan)';
+            if (result.output) playSuccess();
+        }
+        outEl.textContent = result.output || '(tidak ada output — coba pakai print()!)';
+
+        // Also refresh visual from full parse
+        const parsed = parseLinesForVisual(code);
+        renderVisualItems(parsed.items);
+        updateLiveHint(parsed.items);
+        checkStepComplete(result.vars, code);
+    }
+
+    // Ctrl+Enter to run
+    codeInput.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); runCode(); }
+        // Tab support
+        if (e.key === 'Tab') {
+            e.preventDefault();
+            const s = codeInput.selectionStart;
+            codeInput.value = codeInput.value.substring(0, s) + '    ' + codeInput.value.substring(codeInput.selectionEnd);
+            codeInput.selectionStart = codeInput.selectionEnd = s + 4;
+        }
+    });
+
+    function getTypeInfo(val) {
+        if (typeof val === 'boolean') return { cls: 'bool', label: 'bool', color: 'var(--pink)' };
+        if (val === null) return { cls: 'none', label: 'None', color: 'var(--muted)' };
+        if (typeof val === 'number') {
+            if (Number.isInteger(val)) return { cls: 'int', label: 'int', color: 'var(--cyan)' };
+            return { cls: 'float', label: 'float', color: 'var(--blue)' };
+        }
+        if (Array.isArray(val)) return { cls: 'list', label: 'list', color: 'var(--purple)' };
+        return { cls: 'str', label: 'str', color: 'var(--orange)' };
+    }
+
+    function formatValue(val) {
+        if (typeof val === 'boolean') return val ? 'True' : 'False';
+        if (val === null) return 'None';
+        if (typeof val === 'string') return val; // No quotes — STR badge is enough
+        if (Array.isArray(val)) return '[' + val.map(formatValue).join(', ') + ']';
+        return String(val);
+    }
+
+    // ===== FLYING VALUE ANIMATION =====
+    function animateFlyingValue(text, color, targetEl) {
+        // Start from the code editor
+        const editorRect = codeInput.getBoundingClientRect();
+        const targetRect = targetEl.getBoundingClientRect();
+
+        const fly = document.createElement('div');
+        fly.className = 'flying-value';
+        fly.textContent = text;
+        fly.style.color = color;
+        fly.style.left = (editorRect.left + editorRect.width / 2) + 'px';
+        fly.style.top = (editorRect.top + editorRect.height / 2) + 'px';
+        document.body.appendChild(fly);
+
+        // Force reflow
+        fly.offsetHeight;
+
+        // Fly to target
+        requestAnimationFrame(() => {
+            fly.style.left = (targetRect.left + targetRect.width / 2 - 20) + 'px';
+            fly.style.top = (targetRect.top + targetRect.height / 2) + 'px';
+
+            setTimeout(() => {
+                fly.classList.add('land');
+                setTimeout(() => fly.remove(), 400);
+            }, 600);
+        });
+    }
+
+    // ===== CONFETTI =====
+    function spawnConfetti(count) {
+        const colors = ['#58d6a2','#f0883e','#79c0ff','#f778ba','#e3b341','#bc8cff','#ff7b72'];
+        for (let i = 0; i < count; i++) {
+            const p = document.createElement('div');
+            p.className = 'confetti-piece';
+            p.style.left = Math.random() * 100 + '%';
+            p.style.top = '-10px';
+            p.style.width = (Math.random() * 8 + 5) + 'px';
+            p.style.height = (Math.random() * 8 + 5) + 'px';
+            p.style.background = colors[Math.floor(Math.random() * colors.length)];
+            p.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+            p.style.animationDuration = (Math.random() * 2 + 1.5) + 's';
+            p.style.animationDelay = (Math.random() * 0.5) + 's';
+            document.body.appendChild(p);
+            setTimeout(() => p.remove(), 4000);
+        }
+    }
+
+    function spawnConfettiAt(x, y, count) {
+        const colors = ['#58d6a2','#f0883e','#79c0ff','#f778ba','#e3b341','#bc8cff'];
+        for (let i = 0; i < count; i++) {
+            const p = document.createElement('div');
+            p.className = 'confetti-piece';
+            const angle = (Math.PI * 2 / count) * i;
+            const dist = 40 + Math.random() * 30;
+            p.style.left = x + 'px';
+            p.style.top = y + 'px';
+            p.style.width = (Math.random() * 6 + 4) + 'px';
+            p.style.height = (Math.random() * 6 + 4) + 'px';
+            p.style.background = colors[Math.floor(Math.random() * colors.length)];
+            p.style.borderRadius = '50%';
+            p.style.transition = 'all 0.6s ease-out';
+            document.body.appendChild(p);
+
+            requestAnimationFrame(() => {
+                p.style.left = (x + Math.cos(angle) * dist) + 'px';
+                p.style.top = (y + Math.sin(angle) * dist) + 'px';
+                p.style.opacity = '0';
+                p.style.transform = 'scale(0)';
+            });
+
+            setTimeout(() => p.remove(), 800);
+        }
+    }
+</script>
+</body>
+</html>
